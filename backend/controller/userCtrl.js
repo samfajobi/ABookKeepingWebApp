@@ -10,18 +10,26 @@ const UserModel = require("../models/user")
 
 
 const UserCtrl =  {
+
     register : async (req, res) => {
         try {
             const {email, password, username} = req.body;
-            const user = await UserModel.create({ email, password, username})
-            console.log(user)
-            return res.status(200).json(user)
-           
+            if(!email || !password || !username) {
+                return res.status(500).json({msg: "Please Input all Fields"})
+            } else if (password.length < 6) {
+                return res.status(400).json("Password Length too short!!")
+            }
+            const userExist = await UserModel.findOne({email: email})
+            userExist &&  res.status(401).json("User Already Exist")
 
+            const user = await UserModel.create({ email, password, username})
+            return res.status(200).json(user) 
+               
+ 
             // if(!email || !password || !username) {
             //     return res.status(500).json({msg: "Please Input all Fields"})
             // }
-
+   
             // if(!validateEmail(email)) {
             //     return res.status(500).json({msg: "Invalid Email Address"});
             // }
