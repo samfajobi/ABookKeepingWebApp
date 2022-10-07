@@ -1,4 +1,5 @@
 const UserModel = require("../models/user")
+const bcrypt = require("bcrypt")
 
 // const validateEmail = (email) => {
 //     return String(email)
@@ -50,9 +51,58 @@ const UserCtrl =  {
     },
 
     loginUser : async (req, res) => {
-        
+        const {email, password } = req.body;
+        try {
+            const user = await UserModel.findOne({email: email})
+            !user && res.status(200).json("Wrong Credentials. User not found!!")
+
+            const validate = await bcrypt.compare( req.body.password, user.password)
+            !validate && res.status(400).json("Password Incorrect!!!")
+
+            const {password, ...others} = user._doc
+            res.status(200).json(others)
+
+        } catch (err) {
+
+        }
+
+    },
+
+    updateUser : async (req, res) => {
+        if(req.body.userId === req.params.id) {
+            if(req.body.password) {
+                const salt = await bcrypt.genSalt(10);
+                req.body.password = await bcrypt.hash(req.body.password, salt);
+            }
+            try{
+                const updatedUser = await UserModel.findByIdAndUpdate(
+                    req.params.id, 
+                    {
+                    $set: req.body
+                }, {new: true});
+                res.status(200).json(updatedUser)
+            } catch(error) {
+                res.status(401).json(error)  
+            }   
+        }
+        else {
+            res.status(401).json("You are not allowed!!")
+        } 
+    },
+
+    deleteUser : async (req, res) => {
+
+    },
+
+    getUser : async (req, res) => {
+
+    },
+
+    getAllUsers : async(req, res) => {
 
     }
+
+
 
 }
 
