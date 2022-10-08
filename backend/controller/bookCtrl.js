@@ -1,3 +1,4 @@
+const { findByIdAndDelete } = require('../models/book');
 const BookModel = require('../models/book')
 
 
@@ -17,7 +18,7 @@ const createBook = async (req, res, next) => {
 }
 
 
-const getBook = async () => {
+const getBook = async (req, res, next) => {
     try {
          const book = await BookModel.findById(req.params.id)
          res.status(200).json(book)
@@ -28,7 +29,7 @@ const getBook = async () => {
 }
 
 
-const getAllBooks = async () => {
+const getAllBooks = async (req, res, next) => {
     try {
         const books = await BookModel.find({})
         res.status(200).json(books)
@@ -55,5 +56,14 @@ const updateBook = async (req, res, next) => {
 }
 
 
+const deleteBook = async (req, res) => {
+    try {
+        await BookModel.findByIdAndDelete(req.params.id)
+        res.status(200).json("This Book has been deleted Successfully!!")
+    } catch(err) {
+        res.status(401).json(err)
+    }
+}
 
-module.exports = { createBook, updateBook }
+
+module.exports = { createBook, getBook,getAllBooks, updateBook, deleteBook }
